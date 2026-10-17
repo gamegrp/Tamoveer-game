@@ -1,0 +1,62 @@
+name: Build Linux + macOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check sources
+        run: npm run check
+      - name: Build AppImage, DEB, Snap
+        run: npm run build:linux
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-x64
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.snap
+          if-no-files-found: error
+          retention-days: 14
+
+  mac:
+    name: macOS Intel + Apple Silicon
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check sources
+        run: npm run check
+      - name: Build unsigned DMG and ZIP for both Mac architectures
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run build:mac
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS-Intel-AppleSilicon-UNSIGNED
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          if-no-files-found: error
+          retention-days: 14

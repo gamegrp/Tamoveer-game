@@ -1,0 +1,112 @@
+{
+  "name": "tamoveer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tamoveer — offline action fighting game for Linux and macOS by Nitai Studio",
+  "author": {
+    "name": "Nitai Studio",
+    "email": "nitai.grp00@gmail.com"
+  },
+  "homepage": "https://github.com/",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.cjs && node --check scripts/check-project.cjs && node scripts/check-project.cjs",
+    "build:linux": "electron-builder --linux AppImage deb snap --x64 --publish never",
+    "build:mac": "electron-builder --mac dmg zip --x64 --arm64 --publish never",
+    "build:mac-intel": "electron-builder --mac dmg zip --x64 --publish never",
+    "build:mac-apple": "electron-builder --mac dmg zip --arm64 --publish never",
+    "build:snap": "electron-builder --linux snap --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.tamoveer.nitaistudio",
+    "productName": "Tamoveer",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "settings.json",
+      "web/**/*",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "snap",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icons",
+      "category": "Game",
+      "maintainer": "Nitai Studio <nitai.grp00@gmail.com>",
+      "synopsis": "Tamoveer action fighting game",
+      "artifactName": "${name}-${version}-linux-${arch}.${ext}"
+    },
+    "snapcraft": {
+      "base": "core22",
+      "core22": {
+        "summary": "Tamoveer offline action fighting game",
+        "confinement": "strict"
+      }
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.games",
+      "identity": null,
+      "artifactName": "${name}-${version}-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "productName": "Tamoveer"
+}

@@ -1,0 +1,43 @@
+# WARNING: This workflow uploads a public Store release. Run only after
+# registering the snap name and configuring SNAPCRAFT_STORE_CREDENTIALS.
+name: Publish Snap Store
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate project
+        run: npm run check
+      - name: Build Snap
+        run: npm run build:snap
+      - name: Install Snapcraft CLI
+        run: sudo snap install snapcraft --classic
+      - name: Confirm Snap Store credentials
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            echo 'Missing SNAPCRAFT_STORE_CREDENTIALS GitHub secret.'
+            exit 1
+          fi
+          snapcraft whoami
+      - name: Publish to stable channel
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          set -e
+          for package in dist/*.snap; do
+            snapcraft upload --release=stable "$package"
+          done
